@@ -18,7 +18,6 @@ from datetime import datetime, timezone
 from sqlalchemy import (
     Boolean,
     DateTime,
-    Enum as SAEnum,
     ForeignKey,
     JSON,
     String,
@@ -87,9 +86,9 @@ class User(Base):
         String(255),
         nullable=True,
     )
-    role: Mapped[UserRole] = mapped_column(
-        SAEnum(UserRole, name="user_role"),
-        default=UserRole.USER,
+    role: Mapped[str] = mapped_column(
+        String(50),
+        default=UserRole.USER.value,
         nullable=False,
         server_default=UserRole.USER.value,
     )
@@ -157,8 +156,8 @@ class Report(Base):
         nullable=True,
         index=True,
     )
-    report_type: Mapped[ReportType] = mapped_column(
-        SAEnum(ReportType, name="report_type"),
+    report_type: Mapped[str] = mapped_column(
+        String(50),
         nullable=False,
         index=True,
     )

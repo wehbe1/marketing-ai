@@ -79,7 +79,7 @@ async def get_report_detail(
 def _serialize_report(report, *, include_raw: bool = False) -> dict:
     data = {
         "id": str(report.id),
-        "report_type": report.report_type.value,
+        "report_type": report.report_type,
         "ai_provider": report.ai_provider,
         "input_data": report.input_data,
         "output_data": report.output_data,
