@@ -1,12 +1,12 @@
 {
-    "name": "marketing_ai",
-    "short_name": "marketing_ai",
+    "name": "MarketingAI",
+    "short_name": "MarketingAI",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
+    "background_color": "#F8FAFC",
+    "theme_color": "#6366F1",
+    "description": "AI-powered marketing plans and social content.",
+    "orientation": "any",
     "prefer_related_applications": false,
     "icons": [
         {

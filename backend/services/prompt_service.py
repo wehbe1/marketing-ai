@@ -6,7 +6,7 @@ test, and iterate without touching route or service logic.
 """
 import json
 from models.marketing_models import MarketingCase
-from models.post_models import PostGeneratorInput
+from models.post_models import HashtagAnalysisInput, PostGeneratorInput
 from utils.helpers import detect_language_from_fields
 
 
@@ -178,9 +178,89 @@ Return VALID JSON ONLY (no extra text, no markdown):
 {{
   "post": "string",
   "hook": "string",
-  "cta": "string"
+  "cta": "string",
+  "improved_post": "string",
+  "business_category": "string",
+  "post_objective": "string",
+  "hashtags": {{
+    "hebrew_hashtags": ["#example"],
+    "english_hashtags": ["#Example"],
+    "trending_hashtags": ["#Trend"],
+    "local_hashtags": ["#City"]
+  }}
 }}
+
+HASHTAG RULES:
+- Generate 5-8 hashtags per category when relevant.
+- Each hashtag MUST start with # and contain no spaces.
+- hebrew_hashtags: Hebrew hashtags relevant to business and audience.
+- english_hashtags: English hashtags for reach and discovery.
+- trending_hashtags: trending or high-engagement tags for the platform and topic.
+- local_hashtags: location-based tags using city/region from input (or infer from business context).
+- improved_post: polish grammar and wording of the post without changing meaning.
+- business_category: short label for detected business type.
+- post_objective: short label for the post marketing goal.
 
 INPUT JSON:
 {business_json}
+""".strip()
+
+
+def build_hashtag_prompt(data: HashtagAnalysisInput) -> str:
+    payload = data.model_dump()
+    content_json = json.dumps(payload, ensure_ascii=False, indent=2)
+
+    lang = payload.get("language")
+    if lang not in ("he", "en"):
+        lang = detect_language_from_fields(payload)
+
+    language_note = (
+        "UI language is Hebrew — write improved_post in Hebrew."
+        if lang == "he"
+        else "UI language is English — write improved_post in English."
+    )
+
+    return f"""
+You are a senior social media strategist specializing in hashtag research and content optimization.
+
+{language_note}
+
+TASK:
+Analyze the post content and business context. Then:
+1. Fix grammar and wording in improved_post (keep meaning and tone).
+2. Detect business_category (e.g. cafe, fitness studio, real estate, ecommerce).
+3. Detect post_objective (e.g. engagement, sales, awareness, leads).
+4. Generate high-quality hashtags in four separate groups.
+
+HASHTAG ANALYSIS FACTORS:
+- Business category and offer
+- Target audience
+- Location (city/region if provided; otherwise infer from context)
+- Post language and platform
+- Current social trends for the topic
+- Post goal (engagement, sales, awareness)
+
+OUTPUT FORMAT (STRICT):
+Return VALID JSON ONLY:
+
+{{
+  "improved_post": "string",
+  "business_category": "string",
+  "post_objective": "string",
+  "hebrew_hashtags": ["#tag1", "#tag2"],
+  "english_hashtags": ["#Tag1", "#Tag2"],
+  "trending_hashtags": ["#Trend1", "#Trend2"],
+  "local_hashtags": ["#City1", "#Local1"]
+}}
+
+RULES:
+- 5-8 hashtags per category when relevant; empty array only if truly not applicable.
+- Every hashtag MUST start with # and contain no spaces.
+- hebrew_hashtags: Hebrew tags only.
+- english_hashtags: English tags only.
+- trending_hashtags: mix allowed if commonly used on the platform.
+- local_hashtags: location/city/neighborhood tags.
+
+INPUT JSON:
+{content_json}
 """.strip()

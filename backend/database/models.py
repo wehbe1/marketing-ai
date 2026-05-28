@@ -66,6 +66,7 @@ class User(Base):
     __tablename__ = "users"
     __table_args__ = (
         UniqueConstraint("email", name="uq_users_email"),
+        UniqueConstraint("firebase_uid", name="uq_users_firebase_uid"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -78,9 +79,14 @@ class User(Base):
         nullable=False,
         index=True,
     )
-    hashed_password: Mapped[str] = mapped_column(
+    firebase_uid: Mapped[str | None] = mapped_column(
+        String(128),
+        nullable=True,
+        index=True,
+    )
+    hashed_password: Mapped[str | None] = mapped_column(
         String(255),
-        nullable=False,
+        nullable=True,
     )
     full_name: Mapped[str | None] = mapped_column(
         String(255),

@@ -1,15 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import '../core/constants.dart';
 import '../models/post_generator_models.dart';
 
 class PostGeneratorService {
-  static const String _baseUrl = "http://localhost:8000";
-
   static Future<PostGeneratorResponse> generatePost(
     PostGeneratorRequest request,
   ) async {
-    final url = Uri.parse("$_baseUrl/post/generate");
+    final url = Uri.parse(ApiConstants.generatePost);
 
     final response = await http.post(
       url,

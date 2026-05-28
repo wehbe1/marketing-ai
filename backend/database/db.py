@@ -137,6 +137,28 @@ async def create_tables() -> None:
     logger.info("Database tables verified / created.")
 
 
+async def run_startup_migrations() -> None:
+    """Apply lightweight SQL migrations for existing databases."""
+    from pathlib import Path
+
+    from sqlalchemy import text
+
+    migrations_dir = Path(__file__).parent / "migrations"
+    if not migrations_dir.is_dir():
+        return
+
+    engine = get_engine()
+    for sql_file in sorted(migrations_dir.glob("*.sql")):
+        raw = sql_file.read_text(encoding="utf-8")
+        statements = [s.strip() for s in raw.split(";") if s.strip()]
+        if not statements:
+            continue
+        async with engine.begin() as conn:
+            for statement in statements:
+                await conn.execute(text(statement))
+        logger.info("Applied migration: %s", sql_file.name)
+
+
 async def close_engine() -> None:
     """Dispose the engine pool on application shutdown."""
     global _engine

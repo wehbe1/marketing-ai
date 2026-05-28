@@ -14,6 +14,7 @@ migrate_working_dir/
 .env
 *.env
 backend/.env
+deploy/.env
 venv/
 __pycache__/
 

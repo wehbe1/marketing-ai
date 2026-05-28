@@ -20,7 +20,7 @@ asyncpg>=0.30.0       # async PostgreSQL driver (required for postgresql+asyncpg
 alembic>=1.14.0       # schema migrations
 
 # Auth
-python-jose[cryptography]>=3.3.0   # JWT encode/decode
-bcrypt>=4.0.0     
-python-jose[cryptography]>=3.5.0      
-passlib[bcrypt]>=1.7.4            # password hashing (used directly, not via passlib)
+firebase-admin>=6.6.0
+python-jose[cryptography]>=3.3.0
+bcrypt>=4.0.0
+firebase-admin>=6.0.0

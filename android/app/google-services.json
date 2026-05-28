@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "1077900367333",
+    "project_id": "marketingai-cf01a",
+    "storage_bucket": "marketingai-cf01a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1077900367333:android:e2f62291a524c03aeacb0c",
+        "android_client_info": {
+          "package_name": "com.example.marketing_ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1077900367333-7gtb8luklphci5bjbr6ep2cfc2bn627d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuu9BX7mSNgQ4URllGbYX07_fRXBpXTJQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1077900367333-7gtb8luklphci5bjbr6ep2cfc2bn627d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1077900367333-na4v8o6refd3rldtlk1jt3gcpc0m69je.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.marketingAi"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

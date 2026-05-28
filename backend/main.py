@@ -4,7 +4,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import settings
+from config import get_cors_origins, settings
+from utils.firebase_auth import is_firebase_configured
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +18,9 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # Startup
     if settings.database_url:
-        from database.db import create_tables
+        from database.db import create_tables, run_startup_migrations
         await create_tables()
+        await run_startup_migrations()
     else:
         logger.warning(
             "DATABASE_URL is not set — database features are disabled. "
@@ -39,17 +41,13 @@ app = FastAPI(
     title="Marketing AI API",
     description="AI-powered marketing plan and social post generator.",
     version="1.0.0",
-    docs_url="/docs" if settings.app_env == "development" else None,
-    redoc_url="/redoc" if settings.app_env == "development" else None,
+    docs_url="/docs",
+    redoc_url="/redoc",
     lifespan=lifespan,
 )
 
-# CORS — restrict to your Flutter web origin in production via CORS_ORIGINS in .env
-origins = (
-    [o.strip() for o in settings.cors_origins.split(",")]
-    if settings.cors_origins != "*"
-    else ["*"]
-)
+# CORS — set FRONTEND_URL and/or CORS_ORIGINS in production.
+origins = get_cors_origins()
 
 app.add_middleware(
     CORSMiddleware,
@@ -64,11 +62,13 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 
 from routes.auth_routes import router as auth_router          # noqa: E402
+from routes.hashtag_routes import router as hashtag_router    # noqa: E402
 from routes.marketing_routes import router as marketing_router  # noqa: E402
 from routes.post_routes import router as post_router          # noqa: E402
 from routes.reports_routes import router as reports_router    # noqa: E402
 
 app.include_router(auth_router)
+app.include_router(hashtag_router)
 app.include_router(marketing_router)
 app.include_router(post_router)
 app.include_router(reports_router)
@@ -95,5 +95,7 @@ async def health_check():
         "status": "ok",
         "env": settings.app_env,
         "database": db_status,
+        "firebase": "configured" if is_firebase_configured() else "disabled",
+        "auth": "firebase",
         "ai_provider": settings.ai_provider,
     }

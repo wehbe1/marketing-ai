@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../core/constants.dart';
 
 class MarketingApi {
-  static const String _baseUrl = 'http://localhost:8000';
-
   static Future<Map<String, dynamic>> analyzeMarketing(
     Map<String, dynamic> marketingJson,
   ) async {
-    final url = Uri.parse('$_baseUrl/analyze/marketing');
+    final url = Uri.parse(ApiConstants.analyzeMarketing);
 
     final response = await http.post(
       url,

@@ -28,8 +28,10 @@ logger = logging.getLogger(__name__)
 async def create_user(
     db: AsyncSession,
     email: str,
-    hashed_password: str,
+    hashed_password: Optional[str] = None,
     full_name: Optional[str] = None,
+    firebase_uid: Optional[str] = None,
+    is_verified: bool = False,
 ) -> User:
     """
     Insert a new user row and return it.
@@ -37,7 +39,13 @@ async def create_user(
     Raises:
         ValueError: if the email is already registered.
     """
-    user = User(email=email, hashed_password=hashed_password, full_name=full_name)
+    user = User(
+        email=email,
+        hashed_password=hashed_password,
+        full_name=full_name,
+        firebase_uid=firebase_uid,
+        is_verified=is_verified,
+    )
     db.add(user)
     try:
         await db.flush()
@@ -58,6 +66,66 @@ async def get_user_by_id(db: AsyncSession, user_id: uuid.UUID) -> Optional[User]
     """Return the User with the given UUID, or None."""
     result = await db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
+
+
+async def get_user_by_firebase_uid(
+    db: AsyncSession,
+    firebase_uid: str,
+) -> Optional[User]:
+    """Return the User linked to a Firebase UID, or None."""
+    result = await db.execute(
+        select(User).where(User.firebase_uid == firebase_uid)
+    )
+    return result.scalar_one_or_none()
+
+
+async def get_or_create_firebase_user(
+    db: AsyncSession,
+    *,
+    firebase_uid: str,
+    email: str,
+    full_name: Optional[str] = None,
+    is_verified: bool = False,
+) -> User:
+    """
+    Find or create an app user for a Firebase-authenticated identity.
+
+    Links existing email accounts to the Firebase UID when possible.
+    Updates profile fields on every successful login/sync.
+    """
+    user = await get_user_by_firebase_uid(db, firebase_uid)
+    if user is not None:
+        user.is_verified = is_verified or user.is_verified
+        if full_name:
+            user.full_name = full_name
+        return user
+
+    existing = await get_user_by_email(db, email)
+    if existing is not None:
+        existing.firebase_uid = firebase_uid
+        existing.is_verified = is_verified or existing.is_verified
+        if full_name:
+            existing.full_name = full_name
+        return existing
+
+    try:
+        return await create_user(
+            db=db,
+            email=email,
+            firebase_uid=firebase_uid,
+            full_name=full_name,
+            is_verified=is_verified,
+        )
+    except ValueError:
+        # Race: another request created the same email — link and return.
+        existing = await get_user_by_email(db, email)
+        if existing is None:
+            raise
+        existing.firebase_uid = firebase_uid
+        existing.is_verified = is_verified or existing.is_verified
+        if full_name:
+            existing.full_name = full_name
+        return existing
 
 
 # ===========================================================================

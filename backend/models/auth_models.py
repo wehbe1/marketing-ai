@@ -34,15 +34,13 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class SyncRequest(BaseModel):
+    full_name: str | None = None
+
+
 # ---------------------------------------------------------------------------
 # Response bodies
 # ---------------------------------------------------------------------------
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    expires_in: int  # seconds until expiry (informational, for Flutter)
-
 
 class UserResponse(BaseModel):
     id: uuid.UUID
@@ -61,4 +59,8 @@ class AuthResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int
+    user: UserResponse
+
+
+class SyncResponse(BaseModel):
     user: UserResponse
