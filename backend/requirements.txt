@@ -1,0 +1,26 @@
+# Web framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Data validation + settings
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+email-validator>=2.0.0    # enables pydantic's EmailStr
+
+# Environment
+python-dotenv>=1.0.0
+
+# AI providers
+openai>=1.66.0        # Responses API (client.responses.create) requires >= 1.66
+anthropic>=0.40.0
+
+# Database
+sqlalchemy>=2.0.0
+asyncpg>=0.30.0       # async PostgreSQL driver (required for postgresql+asyncpg://)
+alembic>=1.14.0       # schema migrations
+
+# Auth
+python-jose[cryptography]>=3.3.0   # JWT encode/decode
+bcrypt>=4.0.0     
+python-jose[cryptography]>=3.5.0      
+passlib[bcrypt]>=1.7.4            # password hashing (used directly, not via passlib)
